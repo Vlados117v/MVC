@@ -1,20 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
-</head>
-<body>
+<?php session_start(); 
+	require_once 'controllers/Controller.php';
+	require_once 'model/Model.php';
+	require_once 'classes/Main.php';
+	require_once 'classes/Auth.php';	
 
-<?php
-require_once 'Controller.php';
-require_once 'Model.php';
-require_once 'test.php';
 
- $obj = new Main;
- $obj->get_body();
+	if($_GET['page']) {
+		$class = trim(strip_tags($_GET['page']));
+	}
+	else {
+		$class = 'Auth'; 
+	}
 
-?>
+
+	if(class_exists($class)) {
+		$obj = new $class;
+		$obj->get_body($class);
+   }
+   else {
+   	exit("<p>Что-то не то</p>");
+   }
+  ?>
 </body>
 </html>
