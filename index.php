@@ -1,9 +1,15 @@
 <?php session_start(); 
-	require_once 'controllers/Controller.php';
-	require_once 'model/Model.php';
-	require_once 'classes/Main.php';
-	require_once 'classes/Auth.php';	
 
+	function __autoload($c) {
+ if(file_exists("controllers/".$c.".php")) {
+ require_once "controllers/".$c.".php";
+ }
+ elseif(file_exists("model/".$c.".php")) {
+ require_once "model/".$c.".php";
+ } elseif(file_exists("classes/".$c.".php")) {
+ require_once "classes/".$c.".php";
+ }
+}
 
 	if($_GET['page']) {
 		$class = trim(strip_tags($_GET['page']));

@@ -29,11 +29,16 @@ class Model {
 		}
 	}
 
-	public function add_Task($user_id,$taskItem){
+	public function get_id($user_id){
 		$sql='SELECT `id` FROM `users` WHERE `id`= :id';
 		$query=$this->db->prepare($sql);
 		$query->execute(['id'=>$user_id]);
 		$user_is_real = $query->fetch(PDO::FETCH_OBJ);
+		return $user_is_real;	
+	}	
+
+	public function add_Task($user_id,$taskItem){
+		$user_is_real = $this->get_id($user_id);
 		$today = date("Y-m-d");	
 		if ($user_is_real) {
 			$sql='INSERT INTO tasks(user_id,description,created_at,status) VALUES(?,?,?,?)';
@@ -44,10 +49,7 @@ class Model {
 	}	
 
 	public function delete_All_Tasks($user_id) {
-		$sql='SELECT `id` FROM `users` WHERE `id`= :id';
-		$query=$this->db->prepare($sql);
-		$query->execute(['id'=>$user_id]);
-		$user_is_real = $query->fetch(PDO::FETCH_OBJ);
+		$user_is_real = $this->get_id($user_id);
 		if ($user_is_real) {
 			$sql = 'DELETE FROM `tasks` WHERE `user_id`='.$user_id.'';
 			$query = $this->db->query($sql);
@@ -118,23 +120,20 @@ class Model {
 		$this->add_User($login,$hash);									//To Add New user to db
 		$user_id = $this->get_User_Id($login);
 		$_SESSION["user_id"] = $user_id->id;
-		$_SESSION["auth_err"] = '';	
-		$return = $user_id->id;
+		$_SESSION["auth_err"] = '1';	
 		$new_url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . '?page=Main';
 	} elseif (($user->id!=0)&&(password_verify($password, $user->password))) {
 		$_SESSION["user_id"] = $user->id;
-		$_SESSION["auth_err"] = '';	
+		$_SESSION["auth_err"] = '2';	
 		$return = $user_id->id;
 		$new_url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . '?page=Main';
 	} else {
 		$_SESSION["auth_err"] = 'Введите верный пароль';
 		//$new_url = 'Location: {$_SERVER['REQUEST_URI']}';
 		$new_url = ((!empty($_SERVER['HTTPS'])) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		$return = 27;
 	}
 
-		header('Location: '.$new_url.'');
-		return $user->id;	
+		return [$user->id,$new_url];
 	}	
 
 }
